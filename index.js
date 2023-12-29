@@ -26,6 +26,7 @@ async function run() {
         await client.connect();
 
         const taskCollection = client.db('jobTaskDB').collection('task')
+        const userCollection = client.db('jobTaskDB').collection('user')
 
 
         app.get('/tasks', async (req, res) => {
@@ -71,6 +72,23 @@ async function run() {
             res.send(result);
         })
 
+
+        app.get('/user', async (req, res) => {
+            const cursor = userCollection.find();
+            const users = await cursor.toArray();
+            res.send(users)
+        })
+
+        app.post('/user', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email }
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
 
 
 
